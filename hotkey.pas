@@ -52,14 +52,14 @@ type
     procedure Paint; override;
     procedure EditingDone; override;
   published
-    property BorderStyle;
-    property Cursor;
+    property BorderStyle stored false;
+    property Cursor stored false;
     property Left;
     property Top;
     property Width;
     property Height;
     property TabOrder;
-    property TabStop default true;
+    property TabStop stored false default true;
     property AutoSize;
     property Hotkey: TShortcut read FHotkey write FHotkey;
     property Modifiers: THKModifiers read FModifiers write FModifiers;
