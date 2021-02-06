@@ -20,6 +20,8 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, Menus, Windows, LMessages, LCLIntf, LCLType, LCLProc, LazLogger;
 
+{$R thotkey.res}
+
 type
   THKModifier = (
     hkShift,
@@ -30,14 +32,19 @@ type
 
   THKModifiers = set of THKModifier;
 
+  { THotKey }
+
   THotKey = class(TCustomControl)
   private
     FHotkey: TShortCut;
     FModifiers: THKModifiers;
     FLastPressed: TShortCut;
+    FEmptyText: String;
 
     function GetCharFromVirtualKey(Key: Word): String;
+    function GetModifiers: THKModifiers;
   protected
+    function GetShiftState(Modifiers: THKModifiers): TShiftState;
 {    procedure CreateParams(var Params: TCreateParams); override;}
     procedure DoEnter; override;
     procedure DoExit; override;
@@ -52,17 +59,18 @@ type
     procedure Paint; override;
     procedure EditingDone; override;
   published
-    property BorderStyle stored false;
+    property BorderStyle;
     property Cursor stored false;
     property Left;
     property Top;
     property Width;
     property Height;
     property TabOrder;
-    property TabStop stored false default true;
+    property TabStop;
     property AutoSize;
     property Hotkey: TShortcut read FHotkey write FHotkey;
-    property Modifiers: THKModifiers read FModifiers write FModifiers;
+    property Modifiers: THKModifiers read GetModifiers write FModifiers;
+    property EmptyText: String read FEmptyText write FEmptyText;
   end;
 
 procedure Register;
@@ -78,8 +86,8 @@ constructor THotKey.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csRequiresKeyboardInput];
-  BorderStyle := bsSingle;
   FCursor := crIBeam;
+  EmptyText := 'None';
   {FAutoSelect := True;
   FAutoSelected := False;
   FTextChangedByRealSetText := False;
@@ -98,14 +106,11 @@ end;}
 procedure THotKey.DoEnter;
 var
   Point: TPoint;
-  CharIndex: Integer;
-  Pt: Integer;
-  res: LResult;
 begin
   inherited;
   DebugLn('THotKey.DoEnter');
   CreateCaret(Handle, 0, 1, 16);
-  GetCaretPos(Point);
+  GetCaretPos(Point{%H-});
   DebugLn(', X: ' + IntToStr(Point.x));
   SetCaretPos(1, Point.y);
   ShowCaret(Handle);
@@ -149,7 +154,8 @@ begin
      Hotkey := 0;
   end else
   begin
-    if (filteredShiftState = []) then filteredShiftState := [ssCtrl];
+    if (filteredShiftState = []) and (Modifiers <> []) then filteredShiftState := GetShiftState(Modifiers);
+
     newShortCut := ShortCut(Key, filteredShiftState);
     if (ShortCutToText(newShortCut) <> '') then Hotkey := newShortCut;
   end;
@@ -165,7 +171,10 @@ begin
   Canvas.Font.Assign(Self.Font);
   Canvas.FillRect(ClientRect);
   //Canvas.Brush.Assign(Self.Brush);  No Default Brush!
-  if Hotkey <> 0 then txt := ShortCutToText(Hotkey) else txt := 'None';
+  if (HotKey <> 0) then
+    txt := ShortCutToText(Hotkey)
+  else
+    txt := EmptyText;
   Canvas.TextOut(1, 1, txt);
 end;
 
@@ -181,7 +190,7 @@ var
   keyboardState: TKeyboardState;
   asciiResult: Integer;
 begin
-  GetKeyboardState(keyboardState);
+  GetKeyboardState(keyboardState{%H-});
   SetLength(Result, 2);
 
   asciiResult := ToAscii(Key, MapVirtualKey(Key, 0), keyboardState, @Result[1], 0);
@@ -192,6 +201,19 @@ begin
     else
       Result := '';
     end;
+end;
+
+function THotKey.GetModifiers: THKModifiers;
+begin
+  if FModifiers = [] then Result := [hkAlt] else Result := FModifiers;
+end;
+
+function THotKey.GetShiftState(Modifiers: THKModifiers): TShiftState;
+begin
+  Result := [];
+  if hkShift in Modifiers then Include(Result, ssShift);
+  if hkCtrl in Modifiers then Include(Result, ssCtrl);
+  if hkAlt in Modifiers then Include(Result, ssAlt);
 end;
 
 end.
