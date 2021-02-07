@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fpdoc-descriptions>
+  <package name="THotKey">
+    <module name="HotKey">
+      <element name="THotKey.Hotkey"><short>The current key combination.</short></element>
+      <element name="THotKey.Modifiers"><short>Defines which key to use if the user enters a non-modifier key.</short></element>
+      <element name="THotKey.EmptyText"><short>Defines the text to display if no combination key has been set.</short></element>
+    </module>
+  </package>
+</fpdoc-descriptions>

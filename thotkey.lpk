@@ -699,6 +699,7 @@ Public License instead of this License.  But first, please read
         <Type Value="Binary"/>
       </Item2>
     </Files>
+    <LazDoc Paths="docs"/>
     <RequiredPkgs Count="1">
       <Item1>
         <PackageName Value="IDEIntf"/>

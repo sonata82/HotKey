@@ -42,7 +42,6 @@ type
     FEmptyText: String;
 
     function GetCharFromVirtualKey(Key: Word): String;
-    function GetModifiers: THKModifiers;
   protected
     function GetShiftState(Modifiers: THKModifiers): TShiftState;
 {    procedure CreateParams(var Params: TCreateParams); override;}
@@ -69,7 +68,7 @@ type
     property TabStop;
     property AutoSize;
     property Hotkey: TShortcut read FHotkey write FHotkey;
-    property Modifiers: THKModifiers read GetModifiers write FModifiers;
+    property Modifiers: THKModifiers read FModifiers write FModifiers default [hkAlt];
     property EmptyText: String read FEmptyText write FEmptyText;
   end;
 
@@ -88,6 +87,10 @@ begin
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csRequiresKeyboardInput];
   FCursor := crIBeam;
   EmptyText := 'None';
+  Width := 80;
+  Height := 23;
+  BorderStyle := bsSingle;
+  TabStop := True;
   {FAutoSelect := True;
   FAutoSelected := False;
   FTextChangedByRealSetText := False;
@@ -201,11 +204,6 @@ begin
     else
       Result := '';
     end;
-end;
-
-function THotKey.GetModifiers: THKModifiers;
-begin
-  if FModifiers = [] then Result := [hkAlt] else Result := FModifiers;
 end;
 
 function THotKey.GetShiftState(Modifiers: THKModifiers): TShiftState;
