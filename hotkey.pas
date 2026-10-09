@@ -18,7 +18,7 @@ unit HotKey;
 interface
 
 uses
-  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, Menus, Windows, LMessages, LCLIntf, LCLType, LCLProc, LazLogger;
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, Menus, LMessages, LCLIntf, LCLType, LCLProc, LazLogger;
 
 {$R thotkey.res}
 
@@ -41,7 +41,6 @@ type
     FLastPressed: TShortCut;
     FEmptyText: String;
 
-    function GetCharFromVirtualKey(Key: Word): String;
   protected
     function GetShiftState(Modifiers: THKModifiers): TShiftState;
 {    procedure CreateParams(var Params: TCreateParams); override;}
@@ -186,24 +185,6 @@ begin
   DebugLn('THotKey.EditingDone');
   Invalidate;
   inherited;
-end;
-
-function THotKey.GetCharFromVirtualKey(Key: Word): String;
-var
-  keyboardState: TKeyboardState;
-  asciiResult: Integer;
-begin
-  GetKeyboardState(keyboardState{%H-});
-  SetLength(Result, 2);
-
-  asciiResult := ToAscii(Key, MapVirtualKey(Key, 0), keyboardState, @Result[1], 0);
-  case asciiResult of
-    0: Result := '';
-    1: SetLength(Result, 1);
-    2:;
-    else
-      Result := '';
-    end;
 end;
 
 function THotKey.GetShiftState(Modifiers: THKModifiers): TShiftState;
